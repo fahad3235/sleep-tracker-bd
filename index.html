@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Sleep Tracker BD — offline bilingual sleep log with stats and charts.">
+<title>Sleep Tracker BD</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap header-inner">
+    <div class="brand">
+      <span class="brand-moon" aria-hidden="true">🌙</span>
+      <div>
+        <h1 data-i18n="title">Sleep Tracker BD</h1>
+        <p class="tagline" data-i18n="tagline">Log your nights, understand your rest — fully offline.</p>
+      </div>
+    </div>
+    <button id="langToggle" class="btn ghost" type="button" aria-label="Switch language">বাংলা</button>
+  </div>
+</header>
+
+<main class="wrap">
+  <!-- Entry form -->
+  <section class="card" aria-labelledby="formTitle">
+    <h2 id="formTitle" data-i18n="addEntry">Add sleep entry</h2>
+    <div class="form-grid">
+      <label class="field">
+        <span data-i18n="bedtimeDate">Bedtime date</span>
+        <input type="date" id="entryDate" required>
+      </label>
+      <label class="field">
+        <span data-i18n="bedtime">Bedtime</span>
+        <input type="time" id="bedtime" required>
+      </label>
+      <label class="field">
+        <span data-i18n="wakeTime">Wake time</span>
+        <input type="time" id="wakeTime" required>
+      </label>
+    </div>
+    <div class="field">
+      <span class="field-label" data-i18n="quality">Sleep quality</span>
+      <div id="stars" class="stars" role="radiogroup" aria-label="Sleep quality"></div>
+      <div id="qualityHint" class="hint" data-i18n="qualityHint">Tap a star</div>
+    </div>
+    <label class="field">
+      <span data-i18n="note">Note (optional)</span>
+      <input type="text" id="note" maxlength="500" data-i18n-ph="notePh" placeholder="e.g. tea late, noisy night…">
+    </label>
+    <div class="preview-row">
+      <span class="preview-label" data-i18n="durationLabel">Duration</span>
+      <strong id="durationPreview" class="preview-value">–</strong>
+    </div>
+    <p id="midnightHint" class="note-line hidden"></p>
+    <p id="formError" class="error-line hidden" role="alert"></p>
+    <p class="help-line" data-i18n="helpMidnight">Rule: if wake time is earlier than bedtime, it is counted as the next morning (crossing midnight). Equal times are not allowed.</p>
+    <div class="form-actions">
+      <button id="saveBtn" class="btn primary" type="button" data-i18n="saveEntry">Save entry</button>
+      <button id="cancelEditBtn" class="btn ghost hidden" type="button" data-i18n="cancelEdit">Cancel</button>
+    </div>
+  </section>
+
+  <!-- Stats -->
+  <section class="card" aria-labelledby="statsTitle">
+    <div class="section-head">
+      <h2 id="statsTitle" data-i18n="statsTitle">Statistics</h2>
+      <div class="seg" role="group">
+        <button type="button" class="seg-btn active" data-stats-range="7" data-i18n="last7">Last 7 days</button>
+        <button type="button" class="seg-btn" data-stats-range="30" data-i18n="last30">Last 30 days</button>
+      </div>
+    </div>
+    <p id="statsEmpty" class="empty-line hidden" data-i18n="noDataYet">No data in this range yet.</p>
+    <div class="stat-grid">
+      <div class="stat"><div class="stat-num" id="statAvgDur">–</div><div class="stat-label" data-i18n="avgDuration">Average sleep</div></div>
+      <div class="stat"><div class="stat-num" id="statAvgQual">–</div><div class="stat-label" data-i18n="avgQuality">Average quality</div></div>
+      <div class="stat"><div class="stat-num" id="statSd">–</div><div class="stat-label" data-i18n="consistency">Consistency (std-dev)</div></div>
+      <div class="stat"><div class="stat-num" id="statCount">–</div><div class="stat-label" data-i18n="nightsLogged">Nights logged</div></div>
+    </div>
+  </section>
+
+  <!-- Chart -->
+  <section class="card" aria-labelledby="chartTitle">
+    <div class="section-head">
+      <h2 id="chartTitle" data-i18n="chartTitle">Sleep duration per night</h2>
+      <div class="seg" role="group">
+        <button type="button" class="seg-btn active" data-chart-nights="7" data-i18n="last7Nights">7 nights</button>
+        <button type="button" class="seg-btn" data-chart-nights="14" data-i18n="last14Nights">14 nights</button>
+      </div>
+    </div>
+    <p id="chartEmpty" class="empty-line" data-i18n="noDataYet">No data in this range yet.</p>
+    <svg id="chart" class="chart" viewBox="0 0 560 260" role="img" aria-label="Sleep duration bar chart"></svg>
+  </section>
+
+  <!-- History -->
+  <section class="card" aria-labelledby="historyTitle">
+    <div class="section-head">
+      <h2 id="historyTitle" data-i18n="history">History</h2>
+      <div class="head-actions">
+        <button id="exportBtn" class="btn small" type="button" data-i18n="export">Export JSON</button>
+        <button id="importBtn" class="btn small" type="button" data-i18n="import">Import JSON</button>
+        <input type="file" id="importFile" accept="application/json,.json" class="hidden" aria-hidden="true">
+      </div>
+    </div>
+    <div id="historyEmpty" class="empty-block">
+      <div class="empty-emoji" aria-hidden="true">💤</div>
+      <h3 data-i18n="emptyTitle">No sleep entries yet</h3>
+      <p data-i18n="emptyBody">Log your first night above to see stats and charts here.</p>
+    </div>
+    <ul id="entryList" class="entry-list"></ul>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <p class="wrap" data-i18n="footer">All data stays in this browser (localStorage). No accounts, no network.</p>
+</footer>
+
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+<script src="js/sleep.js"></script>
+<script src="js/i18n.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

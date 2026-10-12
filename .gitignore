@@ -1,0 +1,14 @@
+# dependencies installed only to run the headless tests
+node_modules/
+npm-debug.log*
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+*.swp
+*~
+.idea/
+.vscode/
+
+# local test artifacts
+/tmp/
